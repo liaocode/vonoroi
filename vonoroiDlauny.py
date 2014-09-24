@@ -19,11 +19,13 @@ p5 = (60,20)
 p6 = (69,82)
 
 # save the voronoi graph
-voronoi_graph = {
-	o1: [o2, o3],
-	o2: [o1, o3],
-	o3: [o1, o2]
-}
+#graph = [vertex, edges]
+#vertex = point
+#edges = [[point1,point2]...]
+voronoi_graph = []
+# polygon = [point...]
+# voronoi_polygons = [polygon]
+voronoi_polygons = []
 
 def find_circumcircle(triangle):
 	"""Find a triangle's circumcircle"""
@@ -71,6 +73,12 @@ def drawCircle(circle,myTurtle):
 	myTurtle.goto(center[0], center[1]-radius)
 	myTurtle.down()
 	myTurtle.circle(radius)
+
+def drawPolygon(polygon, myTurtle):
+	myTurtle.up()
+	for point in polygon:
+		myTurtle.goto(point[0],point[1])
+		myTurtle.down()
 
 def drawEdge(edge, myTurtle):
 	v1 = edge[0]
@@ -179,8 +187,7 @@ def LOP(triangles):
 				# total four points in points, and just need to remove one time
 				points.remove(fourth_point)
 				for p in points:
-					num = points.count(p)
-					if num < 2:
+					if p not in pair_1 and p not in pair_2 :
 						first_point = p
 						points.remove(p)
 						break
@@ -250,7 +257,28 @@ def trianglesToGraph(triangles):
 				vertexs.append(vertex)
 	return [vertexs, edges]
 
-
+def sortArroundTriangles(point, triangles):
+	"return the sorted triangles which is arround point"
+	total = len(triangles)
+	sorted_triangles = []
+	triangle = triangles.pop()
+	sorted_triangles.append(triangle)
+	for next_point in triangle:
+		if next_point != point:
+			break
+	for end_point in triangle:
+		if end_point != point and end_point != next_point:
+			break
+	while len(sorted_triangles) != total:
+		for triangle in triangles:
+			if next_point in triangle:
+				sorted_triangles.append(triangle)
+				for p in triangle:
+					if p != point and p != next_point:
+						next_point = p
+						break
+				triangles.remove(triangle)
+	return sorted_triangles
 
 def main():
 	myTurtle = turtle.Turtle()
@@ -270,9 +298,9 @@ def main():
 	# the number of the points
 	free_points = []
 	# 10 points
-	for n in xrange(1,5):
-		a = random.uniform(1,300)
-		b = random.uniform(1,300)
+	for n in xrange(1,3):
+		a = random.uniform(1,100)
+		b = random.uniform(1,100)
 		p = (a,b)
 		if p not in free_points:
 			free_points.append(p)
@@ -375,9 +403,34 @@ def main():
 	delaunty_graph = trianglesToGraph(delaunty_triangles)
 	drawGraph(delaunty_graph, myTurtle)
 
+	# point's arround triangles
+	arround_triangles = []
+	temp_graph = []
+	temp_graphs = []
+	for point in free_points:
+		for triangle in delaunty_triangles:
+			if point in triangle:
+				arround_triangles.append(triangle)
+		# sort by shunshizhen
+		sorted_arround_triangles = sortArroundTriangles(point, arround_triangles)
+		sorted_polygon = []
+		# find the tirangle's circumcircle
+		for s_triangle in sorted_arround_triangles:
+			s_circle = find_circumcircle(s_triangle)
+			sorted_polygon.append(s_circle[0])
+		voronoi_polygons.append(sorted_polygon)
+
+
+
+	print 'voronoi_polygons are:'
+	for polygon in voronoi_polygons:
+		drawPolygon(polygon, myTurtle)
+
+	print 'free_points is : %d' % len(free_points)
 	for pp in free_points:
 		#drawPoint(pp, myTurtle)
-		pass
+		print pp
+		#pass
 	for triangle in delaunty_triangles:
 		#drawTriangle(triangle, myTurtle)
 		pass
