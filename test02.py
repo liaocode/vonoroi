@@ -65,14 +65,14 @@ def sortArroundTriangles(point, triangles):
 		if end_point != point and end_point != next_point:
 			break
 	while len(sorted_triangles) != total:
-		for triangle in triangles:
-			if next_point in triangle:
-				sorted_triangles.append(triangle)
-				for p in triangle:
+		for triangle_1 in triangles:
+			if next_point in triangle_1:
+				sorted_triangles.append(triangle_1)
+				for p in triangle_1:
 					if p != point and p != next_point:
 						next_point = p
 						break
-				triangles.remove(triangle)
+				triangles.remove(triangle_1)
 	return sorted_triangles
 
 myTurtle = turtle.Turtle()
@@ -83,18 +83,23 @@ a = (100,0)
 b = (0,100)
 c = (-100, 0)
 d = (0, -100)
+e = (100,100)
+f = (-100,-100)
 o = (0,0)
 
-t1 = [o,a,b]
+t1 = [o,a,e]
 t2 = [o,c,b]
-t3 = [o,c,d]
+t3 = [o,c,f]
 t4 = [o,d,a]
+t5 = [o,b,e]
+t6 = [o,c,d]
 
-t = [t1,t2,t3,t4]
+t = [t2,t6,t3,t1,t4,t5]
 
-new_t = sortArroundTriangles(o, t)
+new_ts = sortArroundTriangles(o, t)
 print 'new t is :'
-for nt in new_t:
+for nt in new_ts:
+	drawTriangle(nt,myTurtle)
 	print nt
 
 # the number of the points

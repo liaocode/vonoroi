@@ -9,6 +9,7 @@ import random
 o1 = (0, 0)
 o2 = (0, 300)
 o3 = (300, 0)
+border = [o1,o2,o3]
 
 # free points
 p1 = (10, 10)
@@ -298,7 +299,7 @@ def main():
 	# the number of the points
 	free_points = []
 	# 10 points
-	for n in xrange(1,3):
+	for n in xrange(1,5):
 		a = random.uniform(1,100)
 		b = random.uniform(1,100)
 		p = (a,b)
@@ -403,10 +404,14 @@ def main():
 	delaunty_graph = trianglesToGraph(delaunty_triangles)
 	drawGraph(delaunty_graph, myTurtle)
 
+	# delete the convex closure
+	for o in border:
+		for t in delaunty_triangles:
+			if o in t:
+				delaunty_triangles.remove(t)
+
 	# point's arround triangles
 	arround_triangles = []
-	temp_graph = []
-	temp_graphs = []
 	for point in free_points:
 		for triangle in delaunty_triangles:
 			if point in triangle:
