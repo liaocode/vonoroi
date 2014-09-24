@@ -16,6 +16,7 @@ p2 = (150, 80)
 p3 = (120, 20)
 p4 = (50, 50)
 p5 = (60,20)
+p6 = (69,82)
 
 # save the voronoi graph
 voronoi_graph = {
@@ -179,7 +180,7 @@ def LOP(triangles):
 				points.remove(fourth_point)
 				for p in points:
 					num = points.count(p)
-					if num == 1:
+					if num < 2:
 						first_point = p
 						points.remove(p)
 						break
@@ -269,14 +270,14 @@ def main():
 	# the number of the points
 	free_points = []
 	# 10 points
-	for n in xrange(1,10):
+	for n in xrange(1,5):
 		a = random.uniform(1,300)
 		b = random.uniform(1,300)
 		p = (a,b)
 		if p not in free_points:
 			free_points.append(p)
 	# save the free points
-	#free_points = [p1, p2, p3, p4,p5]
+	#free_points = [p1, p2, p3, p4,p5, p6]
 
 	# 1.make a super triangle, contain all free points
 	#   join in the triangle list
