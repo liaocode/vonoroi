@@ -17,6 +17,14 @@ def drawCircle(circle,myTurtle):
 	myTurtle.down()
 	myTurtle.circle(radius)
 
+def drawEdge(edge, myTurtle):
+	v1 = edge[0]
+	v2 = edge[1]
+	myTurtle.up()
+	myTurtle.goto(v1[0],v1[1])
+	myTurtle.down()
+	myTurtle.goto(v2[0],v2[1])
+
 def find_circumcircle(triangle):
 	"""Find a triangle's circumcircle"""
 	A = triangle[0]
@@ -39,9 +47,11 @@ def find_circumcircle(triangle):
 	
 def drawPolygon(polygon, myTurtle):
 	myTurtle.up()
+	begin = polygon[0]
 	for point in polygon:
 		myTurtle.goto(point[0],point[1])
 		myTurtle.down()
+	myTurtle.goto(begin[0],begin[1])
 
 def drawTriangle(points,myTurtle):
     myTurtle.up()
@@ -54,53 +64,73 @@ def drawTriangle(points,myTurtle):
     #myTurtle.end_fill()
 
 def sortArroundTriangles(point, triangles):
-	total = len(triangles)
-	sorted_triangles = []
-	triangle = triangles.pop()
-	sorted_triangles.append(triangle)
-	for next_point in triangle:
-		if next_point != point:
-			break
-	for end_point in triangle:
-		if end_point != point and end_point != next_point:
-			break
-	while len(sorted_triangles) != total:
-		for triangle_1 in triangles:
-			if next_point in triangle_1:
-				sorted_triangles.append(triangle_1)
-				for p in triangle_1:
-					if p != point and p != next_point:
-						next_point = p
-						break
-				triangles.remove(triangle_1)
-	return sorted_triangles
+	"""return a sorted polygon"""
+	centers = []
+	# get all centers
+	for t in triangles:
+		circle =  find_circumcircle(t)
+		centers.append(circle[0])
+	up_vertexs = []
+	down_vertexs = []
+	for p in centers:
+		if p[1] > point[1]:
+			up_vertexs.append(p)
+		else:
+			down_vertexs.append(p)
+	print 'up_vertexs'
+	up_vertexs.sort()
+	print up_vertexs
+	print ''
+	print 'before reverse down_vertexs'
+	down_vertexs.sort()
+	print down_vertexs
+	print 'after reverse'
+	down_vertexs.reverse()
+	print down_vertexs
+	print ''
+	print 'restule'
+	up_vertexs.extend(down_vertexs)
+	print up_vertexs
+	return up_vertexs
+
+
 
 myTurtle = turtle.Turtle()
 myTurtle.speed('slowest')
 myWin = turtle.Screen()
 
 a = (100,0)
-b = (0,100)
-c = (-100, 0)
-d = (0, -100)
-e = (100,100)
-f = (-100,-100)
+b = (50,50)
+c = (-50, 50)
+d = (-100, 0)
+e = (-50,-50)
+f = (50,-50)
+g = (100,0)
 o = (0,0)
 
-t1 = [o,a,e]
+t1 = [o,g,b]
 t2 = [o,c,b]
-t3 = [o,c,f]
-t4 = [o,d,a]
-t5 = [o,b,e]
-t6 = [o,c,d]
+t3 = [o,c,d]
+t4 = [o,d,e]
+t5 = [o,e,f]
+t6 = [o,f,g]
 
 t = [t2,t6,t3,t1,t4,t5]
 
-new_ts = sortArroundTriangles(o, t)
-print 'new t is :'
-for nt in new_ts:
-	drawTriangle(nt,myTurtle)
-	print nt
+sorted_points = sortArroundTriangles(o, t)
+drawPoint(o, myTurtle)
+
+for t1 in t:
+	#drawTriangle(t1,myTurtle)
+	pass
+
+drawPolygon(sorted_points,myTurtle)
+
+print 'sorted_points is :'
+for p in sorted_points:
+	#myTurtle.goto(p[0],p[1])
+	#myTurtle.down()
+	print p
 
 # the number of the points
 free_points = []

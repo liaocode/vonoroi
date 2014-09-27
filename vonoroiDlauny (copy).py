@@ -7,11 +7,17 @@ import random
 
 # reference points
 o1 = (0, 0)
-o2 = (500, 0.85*1000)
-o3 = (1000, 0)
+o2 = (500, 0)
+o3 = (250, 500)
 border = [o1,o2,o3]
 
-
+# free points
+p1 = (10, 10)
+p2 = (150, 80)
+p3 = (120, 20)
+p4 = (50, 50)
+p5 = (60,20)
+p6 = (69,82)
 
 # save the voronoi graph
 #graph = [vertex, edges]
@@ -70,14 +76,11 @@ def drawCircle(circle,myTurtle):
 	myTurtle.down()
 	myTurtle.circle(radius)
 
-def drawPolygon(polygon, myTurtle, color='black'):
+def drawPolygon(polygon, myTurtle):
 	myTurtle.up()
-	myTurtle.pencolor(color)
-	begin = polygon[0]
 	for point in polygon:
 		myTurtle.goto(point[0],point[1])
 		myTurtle.down()
-	myTurtle.goto(begin[0],begin[1])
 
 def drawEdge(edge, myTurtle):
 	v1 = edge[0]
@@ -271,24 +274,27 @@ def trianglesToGraph(triangles):
 	return [vertexs, edges]
 
 def sortArroundTriangles(point, triangles):
-	"""return a sorted polygon"""
-	centers = []
-	# get all centers
-	for t in triangles:
-		circle =  find_circumcircle(t)
-		centers.append(circle[0])
-	up_vertexs = []
-	down_vertexs = []
-	for p in centers:
-		if p[1] > point[1]:
-			up_vertexs.append(p)
-		else:
-			down_vertexs.append(p)
-	up_vertexs.sort()
-	down_vertexs.sort()
-	down_vertexs.reverse()
-	up_vertexs.extend(down_vertexs)
-	return up_vertexs
+	total = len(triangles)
+	sorted_triangles = []
+	triangle = triangles.pop()
+	sorted_triangles.append(triangle)
+	for next_point in triangle:
+		if next_point != point:
+			break
+	for end_point in triangle:
+		if end_point != point and end_point != next_point:
+			break
+	while len(sorted_triangles) != total:
+		for triangle_1 in triangles:
+			if next_point in triangle_1 and triangle_1 not in sorted_triangles:
+				sorted_triangles.append(triangle_1)
+				for p in triangle_1:
+					if p != point and p != next_point:
+						next_point = p
+						if p == end_point:
+							return sorted_triangles
+						break
+	return sorted_triangles
 
 def main():
 	myTurtle = turtle.Turtle()
@@ -315,18 +321,12 @@ def main():
 	#	if p not in free_points:
 	#		free_points.append(p)
 	# save the free points
-	#k0 = (150,150)
-	#k1 = (100,200)
-	#k2 = (150,100)
-	#k3 = (200,200)
-	#free_points = [k0, k1, k2]
-
-	# free points
-	p1 = (100, 80)
-	p2 = (200, 70)
-	p3 = (150, 60)
-	p4 = (140,50)
-	free_points = [p1,p2,p3,p4]
+	k0 = (150,150)
+	k1 = (100,200)
+	k2 = (150,100)
+	k3 = (200,200)
+	free_points = [k0, k1, k2]
+	#free_points = [p1, p2, p3, p4,p5, p6]
 
 	# 1.make a super triangle, contain all free points
 	#   join in the triangle list
@@ -339,67 +339,41 @@ def main():
 	for point in free_points:
 		# find the affected triangles
 		affected_triangles = []
-		####
-		print ''
-		print 'point'
-		print point
-		myTurtle.clear()
-#		drawPoint(point, myTurtle)
-		print 'delaunty_triangles'
-		for t in delaunty_triangles:
-			print t
-#			drawTriangle(t, myTurtle)
-		print 'circumcircles'
-		for c in circumcircles:
-			print c
-#			drawCircle(c, myTurtle)
-
-		####
 		for circle in circumcircles:
 			center = circle[0]
 			radius = circle[1]
 			if (distanceOfPoints(center, point) < radius):
 				# add the triangles from delaunty triangles by circumcircle
 				affected_triangles.append(delaunty_triangles[circumcircles.index(circle)])
-
-		print 'affected_triangle number:'
-		print len(affected_triangles)
 		# at least one affected triangle
 		if (len(affected_triangles) == 1):
 			# just one affected triangle
 			# connet three points
 			affected_triangle = affected_triangles[0]
-
 			# del the triangles from triangle list
 			delaunty_triangles.remove(affected_triangle)
-			circumcircles.remove(find_circumcircle(affected_triangle))
+			#circumcircles.remove(find_circumcircle(affected_triangle))
 			# add new triangles to the delaunty triangles
 			# add circumcircle when add each delaunty triangles
-			delaunty_triangles.append([point, affected_triangle[0], affected_triangle[1]])
-			circumcircles.append(find_circumcircle([point, affected_triangle[0], affected_triangle[1]]))
+			delaunty_triangles.append((point, affected_triangle[0], affected_triangle[1]))
+			#circumcircles.append(find_circumcircle((point, affected_triangle[0], affected_triangle[1])))
 
-			delaunty_triangles.append([point, affected_triangle[0], affected_triangle[2]])
-			circumcircles.append(find_circumcircle([point, affected_triangle[0], affected_triangle[2]]))
+			delaunty_triangles.append((point, affected_triangle[0], affected_triangle[2]))
+			#circumcircles.append(find_circumcircle((point, affected_triangle[0], affected_triangle[2])))
 
-			delaunty_triangles.append([point, affected_triangle[2], affected_triangle[1]])
-			circumcircles.append(find_circumcircle([point, affected_triangle[2], affected_triangle[1]]))
+			delaunty_triangles.append((point, affected_triangle[2], affected_triangle[1]))
+			#circumcircles.append(find_circumcircle((point, affected_triangle[2], affected_triangle[1])))
 
 		else:
 			# more than one affected
 			# find the public edges between the triangles
 			triangle_edges = []
-			#print 'delaunty_triangles are:'
-			#print delaunty_triangles
-			#print 'affected_triangles are :'
-			#print affected_triangles
-			#print 'point is '
-			#print point
-			for affected_triangle in affected_triangles:
+			for triangle_points in affected_triangles:
 				# delete all affected triangles from delaunty list and the circumcircles
-				del circumcircles[delaunty_triangles.index(affected_triangle)]
-				delaunty_triangles.remove(affected_triangle)
+				del circumcircles[delaunty_triangles.index(triangle_points)]
+				delaunty_triangles.remove(triangle_points)
 				# save all the edges
-				for edge in pointsToEdges(affected_triangle):
+				for edge in pointsToEdges(triangle_points):
 					triangle_edges.append(edge)
 			# delete the public edges
 			for edge in triangle_edges:
@@ -419,11 +393,8 @@ def main():
 
 			# 3.Local Optimization Procedure
 			#   make sure it is delaunay triangles
-			new_triangles = LOP(temp_triangles)
-			#new_triangles = temp_triangles
-			# flash circumcirlce list by new tirangles
-			for new_triangle in new_triangles:
-				circumcircles.append(find_circumcircle(new_triangle))
+			#new_triangles = LOP(temp_triangles)
+			new_triangles = temp_triangles
 			delaunty_triangles.extend(new_triangles)
 			#for triangle in new_triangles:
 			#	circle = find_circumcircle(triangle)
@@ -451,80 +422,55 @@ def main():
 	#graph = [vertex, edges]
 	#vertex = point
 	#edges = [[point1,point2]...]
-	myTurtle.clear()
 	delaunty_graph = trianglesToGraph(delaunty_triangles)
-#	drawGraph(delaunty_graph, myTurtle)
-	#delaunty_graph[1].sort()
-	#for edge in delaunty_graph[1]:
-	#	print edge
+	drawGraph(delaunty_graph, myTurtle)
 
-	# delete triangle which content two of o1,o2,o3
-	print 'before remove delaunty_triangles are'
-	for t in delaunty_triangles:
-		print t
-	print ''
-	print 'remove triangles'
-	remove_triangles = []
-	for t in delaunty_triangles:
-		print 'checking'
-		print t
-		if (o1 in t and o2 in t) or (o1 in t and o3 in t) or (o2 in t and o3 in t):
-			remove_triangles.append(t)
-	print ''
-	#print 'remove_triangles'
-	for t in remove_triangles:
-		#print t
-		delaunty_triangles.remove(t)
-	print ''
-	print 'after remove delaunty_triangles'
-	for triangle in delaunty_triangles:
-		print triangle
-		drawTriangle(triangle, myTurtle, "blue")	
-	
-	for pp in free_points:
-		drawPoint(pp, myTurtle)
+	# delete the convex closure
+	#for o in border:
+	#	for t in delaunty_triangles:
+	#		if o in t:
+	#			delaunty_triangles.remove(t)
+	#for triangle in delaunty_triangles:
+	#	drawTriangle(triangle, myTurtle, "blue")	
 
 	# point's arround triangles
-	for point in free_points:
-		arround_triangles = []
-		for triangle in delaunty_triangles:
-			if point in triangle:
-				arround_triangles.append(triangle)
-		# sort by shunshizhen
-		sorted_vertexs = sortArroundTriangles(point, arround_triangles)
-		print ''
-		print 'point'
-		print point
-		print 'arround_triangles'
-		for t in arround_triangles:
-			print t
-		print 'sorted_vertexs '
-		for st in sorted_vertexs:
-			print st
-			#drawTriangle(st, myTurtle, "red")
-		#sorted_polygon = []
-		# find the tirangle's circumcircle
-		#for s_triangle in sorted_arround_triangles:
-		#	s_circle = find_circumcircle(s_triangle)
-		#	sorted_polygon.append(s_circle[0])
-
-		drawPolygon(sorted_vertexs, myTurtle, 'red')
-
+	#arround_triangles = []
+	#for point in free_points:
+	#	for triangle in delaunty_triangles:
+	#		if point in triangle:
+	#			arround_triangles.append(triangle)
+	#	# sort by shunshizhen
+	#	sorted_arround_triangles = sortArroundTriangles(point, arround_triangles)
+	#	sorted_polygon = []
+	#	# find the tirangle's circumcircle
+	#	for s_triangle in sorted_arround_triangles:
+	#		s_circle = find_circumcircle(s_triangle)
+	#		sorted_polygon.append(s_circle[0])
+#
 	#	voronoi_polygons.append(sorted_polygon)
 
+
+
+	print 'voronoi_polygons are:'
+	for polygon in voronoi_polygons:
+		#drawPolygon(polygon, myTurtle)
+		pass
+
+	print 'free_points is : %d' % len(free_points)
 	for pp in free_points:
 		#drawPoint(pp, myTurtle)
-		#print pp
-		pass
+		print pp
+		#pass
 	for triangle in delaunty_triangles:
-		#drawTriangle(triangle, myTurtle)
-		#print triangle
-		pass
+		drawTriangle(triangle, myTurtle)
+		#pass
 	for circle in circumcircles:
 		#drawCircle(circle, myTurtle)
 		pass
 
-	print 'END'
+	#circle = find_circumcircle([o2,p4,o3])
+	#drawCircle(circle,myTurtle)
+
 	myWin.exitonclick()
 
 main()

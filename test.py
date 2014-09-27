@@ -14,7 +14,7 @@ def drawPoint(point, myTurtle):
 	myTurtle.goto(point[0], point[1])
 	myTurtle.down()
 	myTurtle.dot(5)
-		
+	
 
 def drawTriangle(points,myTurtle):
     myTurtle.up()
