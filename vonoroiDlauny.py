@@ -6,8 +6,8 @@ import math
 import random
 
 # reference points
-o1 = (0, 0)
-o2 = (500, 0.85*1000)
+o1 = (0, -1000)
+o2 = (0, 0.85*1000)
 o3 = (1000, 0)
 border = [o1,o2,o3]
 
@@ -270,25 +270,17 @@ def trianglesToGraph(triangles):
 				vertexs.append(vertex)
 	return [vertexs, edges]
 
-def sortArroundTriangles(point, triangles):
+def sortArroundTriangles(point, triangles, myTurtle):
 	"""return a sorted polygon"""
-	centers = []
-	# get all centers
-	for t in triangles:
-		circle =  find_circumcircle(t)
-		centers.append(circle[0])
-	up_vertexs = []
-	down_vertexs = []
-	for p in centers:
-		if p[1] > point[1]:
-			up_vertexs.append(p)
-		else:
-			down_vertexs.append(p)
-	up_vertexs.sort()
-	down_vertexs.sort()
-	down_vertexs.reverse()
-	up_vertexs.extend(down_vertexs)
-	return up_vertexs
+	triangle_pairs = findNeighbourTriangles(triangles)
+	for triangle_pair in triangle_pairs:
+		circle_1 = find_circumcircle(triangle_pair[0])
+		cirlce_2 = find_circumcircle(triangle_pair[1])
+		vexter_1 = circle_1[0]
+		vexter_2 = cirlce_2[0]
+		#drawPoint(vexter_1,myTurtle)
+		#drawPoint(vexter_2,myTurtle)
+		drawEdge([vexter_1, vexter_2], myTurtle)
 
 def main():
 	myTurtle = turtle.Turtle()
@@ -306,11 +298,11 @@ def main():
 	circumcircles.append(circle)
 
 	# the number of the points
-	#free_points = []
+	free_points = []
 	# 10 points
-	#for n in xrange(1,5):
-	#	a = random.uniform(1,100)
-	#	b = random.uniform(1,100)
+	#for n in xrange(1,7):
+	#	a = random.uniform(250,750)
+	#	b = random.uniform(1,500)
 	#	p = (a,b)
 	#	if p not in free_points:
 	#		free_points.append(p)
@@ -326,7 +318,13 @@ def main():
 	p2 = (200, 70)
 	p3 = (150, 60)
 	p4 = (140,50)
-	free_points = [p1,p2,p3,p4]
+	p5 = (130,90)
+	p6 = (130,100)
+	p7 = (120, 90)
+	p8 = (125,99)
+	p9 = (30,319)
+	p10 = (1,100)
+	free_points = [p1,p2,p3,p4,p5,p6,p7,p8]
 
 	# 1.make a super triangle, contain all free points
 	#   join in the triangle list
@@ -479,36 +477,40 @@ def main():
 	print 'after remove delaunty_triangles'
 	for triangle in delaunty_triangles:
 		print triangle
-		drawTriangle(triangle, myTurtle, "blue")	
+#		drawTriangle(triangle, myTurtle, "blue")	
 	
 	for pp in free_points:
 		drawPoint(pp, myTurtle)
 
 	# point's arround triangles
+	dP=0
 	for point in free_points:
 		arround_triangles = []
 		for triangle in delaunty_triangles:
 			if point in triangle:
 				arround_triangles.append(triangle)
 		# sort by shunshizhen
-		sorted_vertexs = sortArroundTriangles(point, arround_triangles)
+#		sorted_vertexs = sortArroundTriangles(point, arround_triangles)
+		sortArroundTriangles(point, arround_triangles, myTurtle)
 		print ''
 		print 'point'
 		print point
 		print 'arround_triangles'
 		for t in arround_triangles:
 			print t
-		print 'sorted_vertexs '
-		for st in sorted_vertexs:
-			print st
+#		print 'sorted_vertexs '
+#		for st in sorted_vertexs:
+#			print st
 			#drawTriangle(st, myTurtle, "red")
 		#sorted_polygon = []
 		# find the tirangle's circumcircle
 		#for s_triangle in sorted_arround_triangles:
 		#	s_circle = find_circumcircle(s_triangle)
 		#	sorted_polygon.append(s_circle[0])
-
-		drawPolygon(sorted_vertexs, myTurtle, 'red')
+		
+		if dP < 1:
+#			drawPolygon(sorted_vertexs, myTurtle, 'red')
+			dP = 3
 
 	#	voronoi_polygons.append(sorted_polygon)
 
@@ -525,6 +527,9 @@ def main():
 		pass
 
 	print 'END'
+	myTurtle.up()
+	myTurtle.home()
 	myWin.exitonclick()
 
 main()
+

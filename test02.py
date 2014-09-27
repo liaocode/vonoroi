@@ -51,7 +51,7 @@ def drawPolygon(polygon, myTurtle):
 	for point in polygon:
 		myTurtle.goto(point[0],point[1])
 		myTurtle.down()
-	myTurtle.goto(begin[0],begin[1])
+	#myTurtle.goto(begin[0],begin[1])
 
 def drawTriangle(points,myTurtle):
     myTurtle.up()
@@ -63,35 +63,49 @@ def drawTriangle(points,myTurtle):
     myTurtle.goto(points[0][0],points[0][1])
     #myTurtle.end_fill()
 
-def sortArroundTriangles(point, triangles):
+def isNeighbourTriangles(triangle_1, triangle_2):
+	"""if the two triangles are neightbour, reutrn True"""
+	num = 0
+	for p1 in triangle_1:
+		for p2 in triangle_2:
+			if p1 == p2:
+				num = num + 1
+				continue;
+	if num == 2:
+		#print 'isNeighbourTriangles return True'
+		return True
+	else:
+		#print 'isNeighbourTriangles return False'
+		return False
+
+def findNeighbourTriangles(triangles):
+	""" find the neightbour triangles pairs from triangles"""
+	neighbour_triangles = []
+	other_triangles = []
+	for triangle in triangles:
+		other_triangles = triangles[:]
+		other_triangles.remove(triangle)
+		for sec_triangle in other_triangles:
+			if isNeighbourTriangles(triangle, sec_triangle):
+				neighbour_triangle = [triangle, sec_triangle]
+				neighbour_triangle.sort()
+				if neighbour_triangle not in neighbour_triangles:
+					neighbour_triangles.append(neighbour_triangle)
+					neighbour_triangles.sort()
+	return neighbour_triangles
+
+def sortArroundTriangles(tag_point, triangles):
 	"""return a sorted polygon"""
-	centers = []
-	# get all centers
-	for t in triangles:
-		circle =  find_circumcircle(t)
-		centers.append(circle[0])
-	up_vertexs = []
-	down_vertexs = []
-	for p in centers:
-		if p[1] > point[1]:
-			up_vertexs.append(p)
-		else:
-			down_vertexs.append(p)
-	print 'up_vertexs'
-	up_vertexs.sort()
-	print up_vertexs
-	print ''
-	print 'before reverse down_vertexs'
-	down_vertexs.sort()
-	print down_vertexs
-	print 'after reverse'
-	down_vertexs.reverse()
-	print down_vertexs
-	print ''
-	print 'restule'
-	up_vertexs.extend(down_vertexs)
-	print up_vertexs
-	return up_vertexs
+	triangle_pairs = findNeighbourTriangles(triangles)
+	for triangle_pair in triangle_pairs:
+		circle_1 = find_circumcircle(triangle_pair[0])
+		cirlce_2 = find_circumcircle(triangle_pair[1])
+		vexter_1 = circle_1[0]
+		vexter_2 = cirlce_2[0]
+		#drawPoint(vexter_1,myTurtle)
+		#drawPoint(vexter_2,myTurtle)
+		drawEdge([vexter_1, vexter_2], myTurtle)
+
 
 
 
@@ -117,20 +131,21 @@ t6 = [o,f,g]
 
 t = [t2,t6,t3,t1,t4,t5]
 
-sorted_points = sortArroundTriangles(o, t)
+#sorted_points = sortArroundTriangles(o, t)
+sortArroundTriangles(o, t)
 drawPoint(o, myTurtle)
 
 for t1 in t:
 	#drawTriangle(t1,myTurtle)
 	pass
 
-drawPolygon(sorted_points,myTurtle)
+#drawPolygon(sorted_points,myTurtle)
 
-print 'sorted_points is :'
-for p in sorted_points:
+#print 'sorted_points is :'
+#for p in sorted_points:
 	#myTurtle.goto(p[0],p[1])
 	#myTurtle.down()
-	print p
+#	print p
 
 # the number of the points
 free_points = []
